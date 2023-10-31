@@ -1,0 +1,314 @@
+题目
+设二叉树[1]的存储结构为二叉链表[2]，编写有关二叉树的递归算法[3]：
+
+(1)统计二叉树中度为1的结点[4]个数。
+
+(2)统计二叉树中度为2的结点个数。
+
+(3)统计二叉树中度为0(叶结点)的结点个数。
+
+(4)统计二叉树的高度。
+
+(5)统计二叉树的宽度，即在二叉树的各层上结点数最多的那一层上的结点总数。
+
+(6)从二叉树中删去所有叶结点。
+
+(7)计算二叉树中指定结点＊p所在层次。
+
+(8)计算二叉树中各结点中的最大元素的值。
+
+(9)交换二叉树中每个结点的两个子女。
+
+(10)以先序次序输出一棵二叉树所有结点的数据值及结点所在层次。
+
+答案
+以下是基于二叉链表存储结构的递归算法实现，分别针对二叉树的各种操作进行了详细描述：
+
+#include <stdio.h>  
+
+#include <stdlib.h>  
+
+// 二叉树结点结构体定义  
+
+typedef struct TreeNode {  
+
+    int data;               // 结点数据  
+
+    struct TreeNode *left;  // 左子结点指针  
+
+    struct TreeNode *right; // 右子结点指针  
+
+} TreeNode;  
+
+
+// 新建一个二叉树结点  
+
+TreeNode* createNode(int data) {  
+
+    TreeNode *node = (TreeNode*) malloc(sizeof(TreeNode));  
+
+    node->data = data;  
+
+    node->left = NULL;  
+
+    node->right = NULL;  
+
+    return node;  
+
+}  
+
+
+// 统计二叉树中度为1的结点个数  
+
+int countOneDegree(TreeNode *root) {  
+
+    if (root == NULL) {  
+
+        return 0;  
+
+    }  
+
+    if (root->left == NULL && root->right == NULL) {  
+
+        return 0;  
+
+    }  
+
+    int count = 0;  
+
+    if (root->left == NULL) {  
+
+        count++;  
+
+    }  
+
+    if (root->right == NULL) {  
+
+        count++;  
+
+    }  
+
+    count += countOneDegree(root->left);  
+
+    count += countOneDegree(root->right);  
+
+    return count;  
+
+}  
+
+
+// 统计二叉树中度为2的结点个数  
+
+int countTwoDegree(TreeNode *root) {  
+
+    if (root == NULL) {  
+
+        return 0;  
+
+    }  
+
+    if (root->left != NULL && root->right != NULL) {  
+
+        return 1 + countTwoDegree(root->left) + countTwoDegree(root->right);  
+
+    }  
+
+    return countTwoDegree(root->left) + countTwoDegree(root->right);  
+
+}  
+
+
+// 统计二叉树中度为0(叶结点)的结点个数  
+
+int countZeroDegree(TreeNode *root) {  
+
+    if (root == NULL) {  
+
+        return 0;  
+
+    }  
+
+    if (root->left == NULL && root->right == NULL) {  
+
+        return 1 + countZeroDegree(root->left) + countZeroDegree(root->right);  
+
+    }  
+
+    return countZeroDegree(root->left) + countZeroDegree(root->right);  
+
+}  
+
+
+// 统计二叉树的高度(深度)  
+
+int countHeight(TreeNode *root) {  
+
+    if (root == NULL) {  
+
+        return 0;  
+
+    }  
+
+    int leftHeight = countHeight(root->left);  
+
+    int rightHeight = countHeight(root->right);  
+
+    return (leftHeight > rightHeight) ? (leftHeight + 1) : (rightHeight + 1);  
+
+}  
+
+
+// 统计二叉树的宽度，即在二叉树的各层上结点数最多的那一层上的结点总数  
+
+int countWidth(TreeNode *root) {  
+
+    if (root == NULL) {  
+
+        return 0;  
+
+    }  
+
+    int leftWidth = countWidth(root->left);  
+
+    int rightWidth = countWidth(root->right);  
+
+    return (leftWidth > rightWidth) ? (leftWidth + 1) : (rightWidth + 1);  
+
+}  
+
+
+// 从二叉树中删除所有叶结点  
+
+void deleteLeaves(TreeNode *&root) {  
+
+    if (root == NULL) {  
+
+        return;  
+
+    }  
+
+    if (root->left != NULL && root->right != NULL) {  
+
+        deleteLeaves(root->left);  
+
+        deleteLeaves(root->right);  
+
+    } else {  
+
+        if (root->left == NULL && root->right == NULL) {  
+
+            free(root);  
+
+            root = NULL;  
+
+        } else {  
+
+            deleteLeaves(root->left);  
+
+            deleteLeaves(root->right);  
+
+            free(root);  
+
+            root = NULL;  
+
+        }  
+
+    }  
+
+}
+
+// 计算二叉树中指定结点＊p所在层次  
+
+int countLevel(TreeNode *root, TreeNode *p) {  
+
+    if (root == NULL || p == NULL) {  
+
+        return -1;  
+
+    }  
+
+    int level = 1;  
+
+    while (root != p) {  
+
+        root = (level & 1) ? root->left : root->right;  
+
+        level++;  
+
+    }  
+
+    return level;  
+
+}
+
+// 计算二叉树中各结点中的最大元素的值  
+
+int countMax(TreeNode *root) {  
+
+    if (root == NULL) {  
+
+        return INT_MIN;  
+
+    }  
+
+    int maxVal = root->data;  
+
+    int leftMax = countMax(root->left);  
+
+    int rightMax = countMax(root->right);  
+
+    if (leftMax > maxVal) {  
+
+        maxVal = leftMax;  
+
+    }  
+
+    if (rightMax > maxVal) {  
+
+        maxVal = rightMax;  
+
+    }  
+
+    return maxVal;  
+
+}
+
+// 交换二叉树中每个结点的两个子女  
+
+void swapChildren(TreeNode *&root) {  
+
+    if (root == NULL) {  
+
+        return;  
+
+    }  
+
+    TreeNode *temp = root->left;  
+
+    root->left = root->right;  
+
+    root->right = temp;  
+
+    swapChildren(root->left);  
+
+    swapChildren(root->right);  
+
+}
+
+// 以先序次序输出一棵二叉树所有结点的数据值及结点所在层次  
+
+void preOrder(TreeNode *root, int level) {  
+
+    if (root == NULL) {  
+
+        return;  
+
+    }  
+
+    printf("Level %d: %d\n", level, root->data);  
+
+    preOrder(root->left, level + 1);  
+
+    preOrder(root->right, level + 1);  
+
+}
